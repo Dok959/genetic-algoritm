@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
 	MapContainer,
 	Marker,
 	Popup,
 	TileLayer,
-	useMap,
-	useMapEvent,
 	useMapEvents,
 } from 'react-leaflet';
 import './Map.css';
@@ -14,11 +12,10 @@ import markerIconPng from 'leaflet/dist/images/marker-icon.png';
 import { Icon } from 'leaflet';
 
 const MyMap = (props) => {
-	const { data } = props;
-	const [markers, setMarkers] = useState(props.data);
+	const { markers, setMarkers } = props;
 
+	// добавление и рендер маркеров
 	const LocationMarkers = () => {
-		// добавление маркеров с карты
 		useMapEvents({
 			click(e) {
 				const { lat, lng } = e.latlng;
@@ -30,8 +27,6 @@ const MyMap = (props) => {
 				setMarkers([...markers, marker]);
 			},
 		});
-
-		console.log(markers.length);
 
 		return (
 			<>
@@ -63,21 +58,6 @@ const MyMap = (props) => {
 			>
 				<TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 				<LocationMarkers />
-				{/* {data.map((point) => console.log(point))}
-				{data.map((point) => (
-					// console.log(point),
-					<Marker
-						position={point.position}
-						icon={
-							new Icon({
-								iconUrl: markerIconPng,
-								iconSize: [25, 41],
-								iconAnchor: [12, 41],
-							})
-						}
-						key={point.name}
-					/>
-				))} */}
 			</MapContainer>
 		</section>
 	);

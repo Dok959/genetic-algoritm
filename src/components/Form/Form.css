@@ -1,0 +1,21 @@
+.Form {
+	text-align: center;
+}
+
+.Form-header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	color: #282c34;
+}
+
+.block-remove {
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: column;
+	align-items: center;
+}
+.my-btn {
+	margin-top: 10px;
+}
