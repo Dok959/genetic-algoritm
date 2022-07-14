@@ -9,6 +9,7 @@ const App = () => {
 	const [countIndividuals, setCountIndividuals] = useState(
 		markers.length > 6 ? 6 : 2,
 	);
+	const [gapPoint, setGapPoint] = useState(3);
 
 	useEffect(() => {
 		setPaths(generateOriginalPaths());
@@ -21,12 +22,99 @@ const App = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [markers]);
 
+	const getRandomInt = (max) => {
+		return Math.floor(Math.random() * max);
+	};
+
+	// Формирование пар для размножения
+	const generatePair = () => {
+		let father;
+		let mather;
+		while (true) {
+			const temp = getRandomInt(population.length);
+			if (population[temp].reproduction) continue;
+
+			if (father === undefined) father = population[temp];
+			else mather = population[temp];
+
+			if (father !== undefined && mather !== undefined) break;
+		}
+
+		return { father, mather };
+	};
+
+	// Смена флага на разрешение участия в размножении
+	const switchReproduction = (individual) => {
+		individual.reproduction = !individual.reproduction;
+	};
+
+	// Генерация пути потомка
+	const generateChild = (args) => {
+		const { father, mather, swap } = args;
+		let parrentOne, parrentTwo;
+
+		if (swap) {
+			parrentOne = mather;
+			parrentTwo = father;
+		} else {
+			parrentOne = father;
+			parrentTwo = mather;
+		}
+
+		let individual = parrentOne.path.slice(0, gapPoint);
+		while (individual.length < markers.length) {
+			parrentTwo.path.map((/** @type {Number} */ el) => {
+				if (!individual.includes(el)) {
+					individual.push(el);
+				}
+			});
+		}
+		individual.push(1);
+		return individual;
+	};
+
+	// Генерация пар потомков
+	const reproduction = (args) => {
+		const { father, mather } = args;
+		let swap = false;
+		let childs = [];
+		let individualOne = generateChild({ father, mather, swap });
+		swap = true;
+		let individualTwo = generateChild({ father, mather, swap });
+		childs.push({
+			path: individualOne,
+			len: generateLenIndividual(individualOne),
+			reproduction: false,
+		});
+		childs.push({
+			path: individualTwo,
+			len: generateLenIndividual(individualTwo),
+			reproduction: false,
+		});
+		return childs;
+	};
+
+	// Скрещивание
+	const crossing = () => {
+		const newPopulation = [];
+		while (population.find((item) => item.reproduction === false)) {
+			const { father, mather } = generatePair();
+			switchReproduction(father);
+			switchReproduction(mather);
+			console.log('Пара родителей', father, mather);
+			newPopulation.push(...reproduction({ father, mather }));
+		}
+		console.log('Созданные потомки', newPopulation);
+	};
+
 	const generateMinPath = () => {
 		if (markers.length < 3) return null;
 
-		console.log('Пути между пунктами', paths);
+		// console.log('Пути между пунктами', paths);
 
-		console.log('Созданные особи', individuals);
+		console.log('Начальная популяция', population);
+
+		crossing();
 	};
 
 	// Генерация расстояний между двумя точками
@@ -70,10 +158,6 @@ const App = () => {
 		return generateOriginalPaths();
 	});
 
-	const getRandomInt = (max) => {
-		return Math.floor(Math.random() * max);
-	};
-
 	// Вычисление длины пути
 	const generateLenIndividual = (path) => {
 		let len = 0;
@@ -112,13 +196,13 @@ const App = () => {
 		while (initIndividuals.length < countIndividuals) {
 			const path = generateOriginalIndividual();
 			const len = generateLenIndividual(path);
-			initIndividuals.push({ path, len });
+			initIndividuals.push({ path, len, reproduction: false });
 		}
 		return initIndividuals;
 	};
 
 	// Популяция
-	const [individuals, setIndividuals] = useState(() => {
+	const [population, setPopulation] = useState(() => {
 		return generateOriginalIndividuals();
 	});
 
@@ -128,6 +212,7 @@ const App = () => {
 				setMarkers={setMarkers}
 				generateMinPath={generateMinPath}
 				countIndividuals={countIndividuals}
+				gapPoint={gapPoint}
 			/>
 			<MyMap markers={markers} setMarkers={setMarkers} />
 		</>

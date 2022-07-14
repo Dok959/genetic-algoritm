@@ -1,3 +1,10 @@
+# Описание особенностей
+
+1. Предполагается что возможны пути из любого города в любой.
+2. Конечная точка должна быть такая же как и начальная.
+3. В каждой особи города (хромосомы) не могут повторяться.
+4. Используется одноточечное одноранговое скрещивание, пример [тут](https://www.youtube.com/watch?v=_ZZzGzMyC4A)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

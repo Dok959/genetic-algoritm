@@ -2,7 +2,7 @@ import React from 'react';
 import './Form.css';
 
 const Form = (props) => {
-	const { setMarkers, generateMinPath, countIndividuals } = props;
+	const { setMarkers, generateMinPath, countIndividuals, gapPoint } = props;
 
 	return (
 		<section>
@@ -26,6 +26,7 @@ const Form = (props) => {
 					<h4>Параметры для рассчета</h4>
 					{/* TODO редактирование параметров */}
 					<p>Количество отбираемых особей {countIndividuals}</p>
+					<p>Величина точки разрыва {gapPoint}</p>
 
 					<p className="block-remove">
 						Вычистить кратчайший путь
