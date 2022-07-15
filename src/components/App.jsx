@@ -35,7 +35,9 @@ const App = () => {
 			if (population[temp].reproduction) continue;
 
 			if (father === undefined) father = population[temp];
-			else mather = population[temp];
+			else if (father !== population[temp]) {
+				mather = population[temp];
+			}
 
 			if (father !== undefined && mather !== undefined) break;
 		}
@@ -67,6 +69,7 @@ const App = () => {
 				if (!individual.includes(el)) {
 					individual.push(el);
 				}
+				return null;
 			});
 		}
 		individual.push(1);
@@ -94,6 +97,50 @@ const App = () => {
 		return childs;
 	};
 
+	// Генерация точек разрыва
+	const generatePointGap = (len) => {
+		while (true) {
+			const pointOne = getRandomInt(len);
+			const pointTwo = getRandomInt(len);
+
+			if (
+				Math.abs(pointOne - pointTwo) <= 1 ||
+				Math.abs(pointTwo - pointOne) <= 1
+			) {
+				continue;
+			}
+
+			if (pointOne < pointTwo) {
+				return [pointOne, pointTwo];
+			} else {
+				return [pointTwo, pointOne];
+			}
+		}
+	};
+
+	// Мутация потомка
+	// [x] возможно не будет перещитываться длина пути
+	const generateMutation = (individual) => {
+		const [pointOne, pointTwo] = generatePointGap(individual.path.length);
+		let reverse = individual.path.slice(pointOne, pointTwo).reverse();
+		individual.path = [
+			...individual.path.slice(0, pointOne),
+			...individual.path.splice(
+				pointOne,
+				pointTwo - pointOne,
+				...reverse,
+			),
+			...individual.path.slice(pointTwo),
+		];
+	};
+
+	// Запуск процедуры мутации потомков
+	const mutations = (newPopulation) => {
+		for (let index = 0; index < newPopulation.length; index++) {
+			generateMutation(newPopulation[index]);
+		}
+	};
+
 	// Скрещивание
 	const crossing = () => {
 		const newPopulation = [];
@@ -101,10 +148,9 @@ const App = () => {
 			const { father, mather } = generatePair();
 			switchReproduction(father);
 			switchReproduction(mather);
-			console.log('Пара родителей', father, mather);
 			newPopulation.push(...reproduction({ father, mather }));
 		}
-		console.log('Созданные потомки', newPopulation);
+		return newPopulation;
 	};
 
 	const generateMinPath = () => {
@@ -114,7 +160,13 @@ const App = () => {
 
 		console.log('Начальная популяция', population);
 
-		crossing();
+		const newPopulation = crossing();
+		console.log('Созданные потомки', newPopulation);
+
+		mutations(newPopulation);
+		console.log('Мутации проведены', newPopulation);
+
+		// TODO отбор лучших, повторение операций
 	};
 
 	// Генерация расстояний между двумя точками
@@ -167,6 +219,7 @@ const App = () => {
 
 			len +=
 				paths?.find(
+					// eslint-disable-next-line no-loop-func
 					(item) =>
 						(item.from === pointFrom && item.to === pointTo) ||
 						(item.from === pointTo && item.to === pointFrom),
