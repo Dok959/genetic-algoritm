@@ -7,6 +7,8 @@
 5. Мутация происходит по инверсии для всех потомков.
 6. Используется процедура элитной селекции.
 
+Для запуска выполните установку библиотек `npm i`, затем запустите проект `npm run start`
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
