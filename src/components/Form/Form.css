@@ -16,6 +16,15 @@
 	flex-direction: column;
 	align-items: center;
 }
+
+.settings {
+	margin: 3px 0;
+}
+
 .my-btn {
 	margin-top: 10px;
+}
+
+.pair {
+	margin-right: 20px;
 }

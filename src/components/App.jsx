@@ -5,20 +5,27 @@ import Form from './Form/Form';
 import MyMap from './Map/Map';
 
 const App = () => {
+	// Точки, их координаты
 	const [markers, setMarkers] = useState(data);
+	// Количество отбираемых особей
 	const [countIndividuals, setCountIndividuals] = useState(
 		markers.length > 6 ? 6 : 2,
 	);
+	// Точка разрыва при генерации потомков
 	const [gapPoint, setGapPoint] = useState(3);
+	// Количество генерируемых поколений
+	const [generations, setGenerations] = useState(7);
+	// Повторение лучшей особи
+	const [retry, setRetry] = useState({
+		individual: {},
+		count: 0,
+		maxCount: 4,
+	});
+	// Подстветка лучшего пути
+	const [showPath, setShowPath] = useState([]);
 
 	useEffect(() => {
 		setPaths(generateOriginalPaths());
-		// if (markers.length > 6) {
-		// 	setCountIndividuals(6);
-		// }
-		// else {
-		// 	setCountIndividuals(2);
-		// }
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [markers]);
 
@@ -27,7 +34,7 @@ const App = () => {
 	};
 
 	// Формирование пар для размножения
-	const generatePair = () => {
+	const generatePair = (population) => {
 		let father;
 		let mather;
 		while (true) {
@@ -119,7 +126,6 @@ const App = () => {
 	};
 
 	// Мутация потомка
-	// [x] возможно не будет перещитываться длина пути
 	const generateMutation = (individual) => {
 		const [pointOne, pointTwo] = generatePointGap(individual.path.length);
 		let reverse = individual.path.slice(pointOne, pointTwo).reverse();
@@ -142,10 +148,10 @@ const App = () => {
 	};
 
 	// Скрещивание
-	const crossing = () => {
+	const crossing = (population) => {
 		const newPopulation = [];
 		while (population.find((item) => item.reproduction === false)) {
-			const { father, mather } = generatePair();
+			const { father, mather } = generatePair(population);
 			switchReproduction(father);
 			switchReproduction(mather);
 			newPopulation.push(...reproduction({ father, mather }));
@@ -153,20 +159,60 @@ const App = () => {
 		return newPopulation;
 	};
 
+	// Селекция элементов
+	const selection = ({ population, newPopulation }) => {
+		let newSelection = [...population, ...newPopulation];
+		newSelection = newSelection
+			.sort((prev, next) => prev.len - next.len)
+			.slice(0, population.length);
+
+		for (let index = 0; index < newSelection.length; index++) {
+			if (newSelection[index].reproduction)
+				switchReproduction(newSelection[index]);
+		}
+		return newSelection;
+	};
+
+	// Генерация визуализации текущего лучшего пути
+	const gererateShowPath = (path) => {
+		const masCoords = [];
+		for (let index = 0; index < path.length; index++) {
+			masCoords.push(
+				markers.find((item) => item.name === path[index])?.position,
+			);
+		}
+		// @ts-ignore
+		setShowPath(masCoords);
+	};
+
+	// Генератор кратчайшего пути между всеми точками
 	const generateMinPath = () => {
 		if (markers.length < 3) return null;
 
-		// console.log('Пути между пунктами', paths);
+		let population = generateOriginalIndividuals();
 
-		console.log('Начальная популяция', population);
+		let bestIndividual;
 
-		const newPopulation = crossing();
-		console.log('Созданные потомки', newPopulation);
+		for (let index = 0; index < generations; index++) {
+			const newPopulation = crossing(population);
 
-		mutations(newPopulation);
-		console.log('Мутации проведены', newPopulation);
+			mutations(newPopulation);
 
-		// TODO отбор лучших, повторение операций
+			population = selection({ population, newPopulation });
+			bestIndividual = population[0];
+			gererateShowPath(bestIndividual.path);
+
+			if (retry.individual === bestIndividual) {
+				retry.count += 1;
+				if (retry.count === retry.maxCount) {
+					bestIndividual = retry.individual;
+					break;
+				}
+			} else {
+				retry.individual = bestIndividual;
+				retry.count = 1;
+			}
+		}
 	};
 
 	// Генерация расстояний между двумя точками
@@ -254,20 +300,25 @@ const App = () => {
 		return initIndividuals;
 	};
 
-	// Популяция
-	const [population, setPopulation] = useState(() => {
-		return generateOriginalIndividuals();
-	});
-
 	return (
 		<>
 			<Form
 				setMarkers={setMarkers}
 				generateMinPath={generateMinPath}
 				countIndividuals={countIndividuals}
+				setCountIndividuals={setCountIndividuals}
 				gapPoint={gapPoint}
+				setGapPoint={setGapPoint}
+				generations={generations}
+				setGenerations={setGenerations}
+				retry={retry}
+				setRetry={setRetry}
 			/>
-			<MyMap markers={markers} setMarkers={setMarkers} />
+			<MyMap
+				markers={markers}
+				setMarkers={setMarkers}
+				showPath={showPath}
+			/>
 		</>
 	);
 };

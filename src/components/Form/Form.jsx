@@ -2,7 +2,18 @@ import React from 'react';
 import './Form.css';
 
 const Form = (props) => {
-	const { setMarkers, generateMinPath, countIndividuals, gapPoint } = props;
+	const {
+		setMarkers,
+		generateMinPath,
+		countIndividuals,
+		setCountIndividuals,
+		gapPoint,
+		setGapPoint,
+		generations,
+		setGenerations,
+		retry,
+		setRetry,
+	} = props;
 
 	return (
 		<section>
@@ -10,8 +21,8 @@ const Form = (props) => {
 				<header className="Form-header">
 					<h3>Генетический алгоритм в задаче коммивояжера</h3>
 					<p>Вы можете добавить новые точки кликами на карте</p>
-					<p className="block-remove">
-						Для удаления всех маркеров нажмите на кноку
+					<div className="block-remove">
+						Для удаления всех маркеров нажмите на кнопку
 						<button
 							type="button"
 							className="my-btn"
@@ -19,14 +30,113 @@ const Form = (props) => {
 						>
 							Очистить карту
 						</button>
-					</p>
-
-					<hr />
+					</div>
 
 					<h4>Параметры для рассчета</h4>
-					{/* TODO редактирование параметров */}
-					<p>Количество отбираемых особей {countIndividuals}</p>
-					<p>Величина точки разрыва {gapPoint}</p>
+					<div className="block-remove settings">
+						Количество отбираемых особей {countIndividuals}
+						<div>
+							<button
+								type="button"
+								className="my-btn pair"
+								onClick={() => {
+									if (countIndividuals > 2)
+										setCountIndividuals(
+											countIndividuals - 1,
+										);
+								}}
+							>
+								Уменьшить
+							</button>
+							<button
+								type="button"
+								className="my-btn"
+								onClick={() =>
+									setCountIndividuals(countIndividuals + 1)
+								}
+							>
+								Увеличить
+							</button>
+						</div>
+					</div>
+
+					<div className="block-remove settings">
+						Количество генерируемых поколений {generations}
+						<div>
+							<button
+								type="button"
+								className="my-btn pair"
+								onClick={() => {
+									if (generations > 1)
+										setGenerations(generations - 1);
+								}}
+							>
+								Уменьшить
+							</button>
+							<button
+								type="button"
+								className="my-btn"
+								onClick={() => setGenerations(generations + 1)}
+							>
+								Увеличить
+							</button>
+						</div>
+					</div>
+
+					<div className="block-remove settings">
+						Величина точки разрыва {gapPoint} для скрещивания
+						<div>
+							<button
+								type="button"
+								className="my-btn pair"
+								onClick={() => {
+									if (gapPoint > 1) setGapPoint(gapPoint - 1);
+								}}
+							>
+								Уменьшить
+							</button>
+							<button
+								type="button"
+								className="my-btn"
+								onClick={() => setGapPoint(gapPoint + 1)}
+							>
+								Увеличить
+							</button>
+						</div>
+					</div>
+
+					<div className="block-remove settings">
+						Количество повторений лучшего пути {retry.maxCount}
+						<div>
+							<button
+								type="button"
+								className="my-btn pair"
+								onClick={() => {
+									if (retry.maxCount > 1)
+										setRetry({
+											individual: {},
+											count: 0,
+											maxCount: retry.maxCount - 1,
+										});
+								}}
+							>
+								Уменьшить
+							</button>
+							<button
+								type="button"
+								className="my-btn"
+								onClick={() =>
+									setRetry({
+										individual: {},
+										count: 0,
+										maxCount: retry.maxCount + 1,
+									})
+								}
+							>
+								Увеличить
+							</button>
+						</div>
+					</div>
 
 					<p className="block-remove">
 						Вычистить кратчайший путь

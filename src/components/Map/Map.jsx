@@ -2,6 +2,7 @@ import React from 'react';
 import {
 	MapContainer,
 	Marker,
+	Polyline,
 	Popup,
 	TileLayer,
 	useMapEvents,
@@ -12,7 +13,7 @@ import markerIconPng from 'leaflet/dist/images/marker-icon.png';
 import { Icon } from 'leaflet';
 
 const MyMap = (props) => {
-	const { markers, setMarkers } = props;
+	const { markers, setMarkers, showPath } = props;
 
 	// добавление и рендер маркеров
 	const LocationMarkers = () => {
@@ -58,6 +59,10 @@ const MyMap = (props) => {
 			>
 				<TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 				<LocationMarkers />
+				<Polyline
+					pathOptions={{ color: 'lime' }}
+					positions={showPath}
+				/>
 			</MapContainer>
 		</section>
 	);
